@@ -1,0 +1,7 @@
+fastapi[standard]
+sqlalchemy
+jinja2
+PyJWT
+pytest
+python-dotenv
+passlib
