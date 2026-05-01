@@ -28,7 +28,8 @@ app.include_router(admin_router)
 
 @app.get("/")
 def home():
-    return {"message": "Repair Request API is running"}
+    return FileResponse("static/index.html")
+    # return {"message": "Repair Request API is running"}
 
 
 @app.get("/web", include_in_schema=False)
