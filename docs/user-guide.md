@@ -1,89 +1,66 @@
-# วิธีเข้าใช้งานระบบ Repair Request Management System
+# คู่มือการใช้งาน Repair Request Management System
 
-Repair Request Management System เป็นระบบแจ้งซ่อมอุปกรณ์ภายในองค์กร พัฒนาด้วย FastAPI มีระบบ Login ด้วย JWT แยกสิทธิ์การใช้งานระหว่าง Admin และ User และมีหน้าเว็บสำหรับใช้งานระบบ
+เอกสารนี้อธิบายวิธีใช้งานระบบแจ้งซ่อมอุปกรณ์ ตั้งแต่การ Login การสร้างรายการแจ้งซ่อม การจัดการ Category สำหรับ Admin ไปจนถึงการ Deploy บน Vercel
 
 ---
 
-## URL สำหรับเข้าใช้งาน
+## 1. เข้าใช้งานระบบ
 
-### Web Application
+### Local
+
+เปิดหน้าเว็บ:
 
 ```txt
 http://localhost:8000/web
 ```
 
-### Swagger API Docs
+เปิด Swagger API Docs:
 
 ```txt
 http://localhost:8000/docs
 ```
 
-### Local API
+### Production บน Vercel
+
+หลัง Deploy ให้เปิด URL ของ Vercel แล้วเติม `/web` เช่น:
 
 ```txt
-http://localhost:8000
-```
-
-### Production
-
-หลังจาก Deploy แล้ว ให้ใช้ URL ที่ได้จาก Render เช่น:
-
-```txt
-https://your-render-url.onrender.com/web
+https://your-project.vercel.app/web
 ```
 
 ---
 
-## บัญชีสำหรับเข้าใช้งาน
+## 2. บัญชีสำหรับทดสอบ
 
-### Admin Account
+### Admin
 
-Email: admin@test.com  
+```txt
+Email: admin@test.com
 Password: 1234
+```
 
-### User Account
+### User
 
-Email: user@test.com  
+```txt
+Email: user@test.com
 Password: 1234
+```
 
 ---
 
-## วิธีรันระบบแบบง่าย
+## 3. วิธีรันระบบ
 
-สามารถดับเบิลคลิกไฟล์นี้ได้เลย:
+### รันแบบง่าย
+
+ดับเบิลคลิก:
 
 ```txt
 start.bat
 ```
 
-เมื่อเปิด `start.bat` ระบบจะทำงานให้อัตโนมัติ ดังนี้:
+ระบบจะติดตั้ง dependencies, seed ข้อมูลตัวอย่าง และเปิด server ให้โดยอัตโนมัติ
 
-```txt
-1. สร้าง virtual environment ถ้ายังไม่มี
-2. Activate virtual environment
-3. ติดตั้ง dependencies จาก requirements.txt
-4. สร้างข้อมูลตัวอย่างด้วย seed.py
-5. เปิดหน้า Web Application อัตโนมัติ
-6. รัน FastAPI server
-```
-
-หลังจากรันสำเร็จ ระบบจะเปิดหน้าเว็บที่:
-
-```txt
-http://localhost:8000/web
-```
-
-และยังสามารถเปิด Swagger API Docs ได้ที่:
-
-```txt
-http://localhost:8000/docs
-```
-
----
-
-## วิธีรันระบบด้วยคำสั่ง Manual
-
-ถ้าต้องการรันเอง ให้เปิด Terminal ที่โฟลเดอร์ `repair-request-system` แล้วพิมพ์:
+### รันด้วยคำสั่ง
 
 ```bash
 python -m venv venv
@@ -93,75 +70,170 @@ python seed.py
 python -m uvicorn main:app --reload
 ```
 
-จากนั้นเปิดหน้าเว็บ:
+จากนั้นเปิด:
 
 ```txt
 http://localhost:8000/web
-```
-
-หรือเปิด Swagger:
-
-```txt
-http://localhost:8000/docs
 ```
 
 ---
 
-## วิธีใช้งานผ่านหน้าเว็บ
+## 4. การ Login
 
-1. เปิดหน้าเว็บ:
+1. เปิดหน้า `/web`
+2. ใส่ Email และ Password
+3. กด `Login`
+4. ถ้า Login สำเร็จ ระบบจะแสดงข้อมูลในส่วน `Current User`
+5. ถ้าต้องการออกจากระบบ ให้กด `Logout`
 
-```txt
-http://localhost:8000/web
-```
+ถ้า token หมดอายุหรือไม่มีสิทธิ์ ระบบจะเคลียร์ session และให้ Login ใหม่
 
-2. Login ด้วยบัญชี Admin หรือ User
+---
 
-3. ถ้า Login เป็น Admin จะสามารถใช้งานได้ดังนี้:
+## 5. สิทธิ์ของผู้ใช้
 
-```txt
+### Guest
+
+ผู้ใช้ที่ยังไม่ได้ Login จะเห็นเฉพาะหน้า Login และข้อความแจ้งให้ Login ก่อนใช้งาน
+
+Guest จะไม่สามารถ:
+
+- ดู Dashboard
+- ดู Categories
+- ดู Repair Requests
+- สร้าง Repair Request
+
+### User
+
+User สามารถ:
+
+- ดูข้อมูลผู้ใช้ของตัวเอง
+- สร้าง Repair Request
+- ดู Repair Request ของตัวเอง
+
+User ไม่สามารถ:
+
+- ดู Admin Dashboard
+- สร้าง แก้ไข หรือลบ Category
+- เปลี่ยนสถานะ Repair Request
+- ลบ Repair Request
+
+### Admin
+
+Admin สามารถ:
+
 - ดู Admin Dashboard
 - ดูจำนวน Users, Categories และ Repair Requests
-- สร้าง Category
-- ดู Category ทั้งหมด
+- สร้าง แก้ไข และลบ Category
 - สร้าง Repair Request
-- ดู Repair Requests ทั้งหมด
-- เปลี่ยนสถานะงานซ่อม
-- ลบรายการแจ้งซ่อม
-```
-
-4. ถ้า Login เป็น User จะสามารถใช้งานได้ดังนี้:
-
-```txt
-- ดูข้อมูล Current User
-- สร้าง Repair Request
-- ดู Repair Requests ของตัวเอง
-- ไม่เห็น Admin Dashboard
-- ไม่เห็น Create Category
-- ไม่สามารถเปลี่ยนสถานะหรือลบรายการแจ้งซ่อมได้
-```
-
-5. ถ้า Logout แล้ว ระบบจะซ่อนข้อมูลที่ต้อง Login เช่น Dashboard, Categories, Create Repair Request และ Repair Requests
+- ดู Repair Request ทั้งหมด
+- เปลี่ยนสถานะ Repair Request
+- ลบ Repair Request
 
 ---
 
-## วิธีใช้งานผ่าน Swagger
+## 6. การจัดการ Category สำหรับ Admin
 
-1. เข้า Swagger API Docs:
+ส่วนนี้จะแสดงเฉพาะเมื่อ Login ด้วยบัญชี Admin
+
+### สร้าง Category
+
+1. ใส่ชื่อในช่อง `Category Name`
+2. ใส่รายละเอียดในช่อง `Description`
+3. กด `Create Category`
+4. Category ใหม่จะแสดงในตาราง Categories
+
+### แก้ไข Category
+
+1. กดปุ่ม `Edit` ที่แถวของ Category ที่ต้องการแก้ไข
+2. ระบบจะนำ Name และ Description มาแสดงในฟอร์ม
+3. แก้ไขข้อมูล
+4. กด `Save Changes`
+5. ตาราง Categories จะ refresh อัตโนมัติ
+
+### ยกเลิกการแก้ไข
+
+กด `Cancel` เพื่อกลับไปโหมดสร้าง Category ใหม่
+
+### ลบ Category
+
+1. กดปุ่ม `Delete`
+2. ยืนยันการลบ
+3. ระบบจะลบ Category และ refresh ตาราง
+
+หมายเหตุ: ถ้ามี Repair Request ที่ใช้ Category นั้นอยู่ ระบบจะเคลียร์ `category_id` ของรายการแจ้งซ่อมเหล่านั้นก่อนลบ Category
+
+---
+
+## 7. การสร้าง Repair Request
+
+1. Login ด้วย Admin หรือ User
+2. ไปที่ส่วน `Create Repair Request`
+3. กรอกข้อมูล:
+   - Title
+   - Description
+   - Location
+   - Priority
+   - Category
+4. กด `Create Repair Request`
+5. รายการใหม่จะมีสถานะเริ่มต้นเป็น `pending`
+
+Priority ที่รองรับ:
+
+```txt
+low
+medium
+high
+```
+
+---
+
+## 8. การดู Repair Requests
+
+### User
+
+User จะเห็นเฉพาะรายการแจ้งซ่อมที่ตัวเองสร้าง
+
+### Admin
+
+Admin จะเห็นรายการแจ้งซ่อมทั้งหมด และมีปุ่ม Action สำหรับจัดการสถานะหรือลบรายการ
+
+---
+
+## 9. การเปลี่ยนสถานะงานซ่อมสำหรับ Admin
+
+Admin สามารถกดปุ่มในตาราง Repair Requests ได้:
+
+- `Accept` เปลี่ยนสถานะเป็น `accepted`
+- `Repairing` เปลี่ยนสถานะเป็น `repairing`
+- `Complete` เปลี่ยนสถานะเป็น `completed`
+- `Delete` ลบรายการแจ้งซ่อม
+
+สถานะที่ระบบรองรับ:
+
+```txt
+pending
+accepted
+repairing
+completed
+cancelled
+```
+
+---
+
+## 10. การใช้ Swagger API Docs
+
+เปิด:
 
 ```txt
 http://localhost:8000/docs
 ```
 
-2. ไปที่ API:
+### Login ผ่าน Swagger
 
-```txt
-POST /api/v1/auth/login
-```
-
-3. กด `Try it out`
-
-4. ใส่ข้อมูล Login:
+1. ไปที่ `POST /api/v1/auth/login`
+2. กด `Try it out`
+3. ใส่ข้อมูล:
 
 ```json
 {
@@ -170,22 +242,22 @@ POST /api/v1/auth/login
 }
 ```
 
-5. กด `Execute`
-6. Copy ค่า `access_token` จาก Response
-7. กดปุ่ม `Authorize` ด้านบนของ Swagger
-8. วาง token ในรูปแบบนี้:
+4. กด `Execute`
+5. Copy ค่า `access_token`
+6. กดปุ่ม `Authorize`
+7. ใส่ token ในรูปแบบ:
 
 ```txt
 Bearer your_access_token
 ```
 
-9. กด `Authorize` แล้วกด `Close`
+8. กด `Authorize`
 
-หลังจาก Authorize แล้ว จะสามารถเรียก API ที่ต้อง Login หรือ API สำหรับ Admin ได้
+หลังจากนั้นจะเรียก API ที่ต้อง Login หรือ API สำหรับ Admin ได้
 
 ---
 
-## API หลักของระบบ
+## 11. API หลัก
 
 ### Auth
 
@@ -205,7 +277,7 @@ PUT    /api/v1/categories/{category_id}
 DELETE /api/v1/categories/{category_id}
 ```
 
-หมายเหตุ: การเพิ่ม แก้ไข และลบ Category ต้องใช้สิทธิ์ Admin
+หมายเหตุ: การสร้าง แก้ไข และลบ Category ต้องใช้สิทธิ์ Admin
 
 ### Repair Requests
 
@@ -218,50 +290,17 @@ DELETE /api/v1/repair-requests/{request_id}
 PATCH  /api/v1/repair-requests/{request_id}/status
 ```
 
-หมายเหตุ: User สามารถสร้างและดูรายการของตัวเองได้ ส่วน Admin สามารถดูทั้งหมดและเปลี่ยนสถานะงานซ่อมได้
-
-### Admin
+### Admin Dashboard
 
 ```txt
 GET /api/v1/admin/dashboard
 ```
 
-หมายเหตุ: API นี้ต้องใช้สิทธิ์ Admin
-
 ---
 
-## ตัวอย่างการทดสอบระบบผ่าน Swagger
+## 12. ตัวอย่าง API Request
 
-### 1. ตรวจสอบข้อมูลผู้ใช้ปัจจุบัน
-
-ใช้ API:
-
-```txt
-GET /api/v1/auth/me
-```
-
-ตัวอย่าง Response:
-
-```json
-{
-  "id": 1,
-  "username": "Admin",
-  "email": "admin@test.com",
-  "role": "admin"
-}
-```
-
----
-
-### 2. สร้างหมวดหมู่อุปกรณ์
-
-ใช้ API:
-
-```txt
-POST /api/v1/categories/
-```
-
-Request Body:
+### Create Category
 
 ```json
 {
@@ -270,84 +309,45 @@ Request Body:
 }
 ```
 
----
-
-### 3. สร้างรายการแจ้งซ่อม
-
-ใช้ API:
-
-```txt
-POST /api/v1/repair-requests/
-```
-
-Request Body:
+### Update Category
 
 ```json
 {
-  "title": "อินเทอร์เน็ตใช้งานไม่ได้",
-  "description": "คอมพิวเตอร์ในห้อง Lab ต่ออินเทอร์เน็ตไม่ได้",
-  "location": "Lab 302",
-  "priority": "high",
-  "category_id": 1
+  "name": "Printer",
+  "description": "เครื่องพิมพ์และอุปกรณ์สำนักงาน"
 }
 ```
 
-เมื่อสร้างสำเร็จ ระบบจะกำหนดสถานะเริ่มต้นเป็น `pending`
+### Create Repair Request
 
----
-
-### 4. เปลี่ยนสถานะงานซ่อม
-
-ใช้ API:
-
-```txt
-PATCH /api/v1/repair-requests/{request_id}/status
+```json
+{
+  "title": "เครื่องพิมพ์ใช้งานไม่ได้",
+  "description": "เครื่องพิมพ์ไม่ดึงกระดาษ",
+  "location": "Office 201",
+  "priority": "medium",
+  "category_id": 3
+}
 ```
 
-ตัวอย่าง:
-
-```txt
-PATCH /api/v1/repair-requests/1/status
-```
-
-Request Body:
+### Update Repair Status
 
 ```json
 {
   "new_status": "repairing",
-  "note": "เจ้าหน้าที่รับเรื่องและกำลังตรวจสอบ"
+  "note": "เจ้าหน้าที่กำลังตรวจสอบ"
 }
 ```
 
-สถานะที่ใช้ได้:
-
-```txt
-pending
-accepted
-repairing
-completed
-cancelled
-```
-
----
-
-### 5. ดู Admin Dashboard
-
-ใช้ API:
-
-```txt
-GET /api/v1/admin/dashboard
-```
-
-ตัวอย่าง Response:
+### Admin Dashboard Response
 
 ```json
 {
   "total_users": 2,
   "total_categories": 3,
-  "total_requests": 2,
+  "total_requests": 1,
   "pending_requests": 1,
-  "repairing_requests": 1,
+  "repairing_requests": 0,
   "completed_requests": 0,
   "cancelled_requests": 0
 }
@@ -355,86 +355,53 @@ GET /api/v1/admin/dashboard
 
 ---
 
-## วิธีรัน Unit Test
+## 13. Deploy บน Vercel
 
-สามารถดับเบิลคลิกไฟล์นี้ได้เลย:
+โปรเจกต์นี้มี `vercel.json` แล้ว สามารถ Deploy บน Vercel ได้
+
+ขั้นตอน:
+
+1. Push code ขึ้น GitHub
+2. Import repository เข้า Vercel
+3. Deploy ด้วยค่าเริ่มต้น
+4. เปิด URL ที่ Vercel ให้มา แล้วเข้า `/web`
+
+ตัวอย่าง:
 
 ```txt
-run_tests.bat
+https://your-project.vercel.app/web
 ```
 
-หรือรันเองด้วยคำสั่ง:
+### หมายเหตุเรื่อง SQLite บน Vercel
+
+Vercel เป็น serverless runtime และไม่เหมาะกับการเขียนไฟล์ SQLite ถาวรในโฟลเดอร์ deploy ดังนั้นระบบนี้จะ copy database ไปใช้ที่ `/tmp/repair_system.sqlite3` เมื่อรันบน Vercel เพื่อให้สร้าง แก้ไข และลบข้อมูลได้
+
+ข้อจำกัดคือข้อมูลใน `/tmp` เป็นข้อมูลชั่วคราว อาจหายเมื่อ cold start หรือ redeploy ถ้าต้องการใช้งานจริงแบบข้อมูลไม่หาย ควรเปลี่ยนไปใช้ฐานข้อมูลถาวร เช่น Supabase, Neon หรือ PostgreSQL service อื่น
+
+---
+
+## 14. Run Unit Test
+
+รัน:
 
 ```bash
 python -m pytest -v
 ```
 
-ถ้าสำเร็จจะเห็นผลลัพธ์ประมาณนี้:
+หรือดับเบิลคลิก:
 
 ```txt
-3 passed
+run_tests.bat
+```
+
+ผลลัพธ์ปัจจุบัน:
+
+```txt
+4 passed
 ```
 
 ---
 
-## วิธี Deploy บน Render
+## 15. สรุป
 
-ใช้ GitHub Repository ของโปรเจกต์นี้ แล้วสร้าง Web Service
-
-### Build Command
-
-```bash
-pip install -r requirements.txt
-```
-
-### Start Command
-
-```bash
-python seed.py && python -m uvicorn main:app --host 0.0.0.0 --port 8000
-```
-
-หลัง Deploy สำเร็จ ให้เปิด:
-
-```txt
-https://your-render-url.onrender.com/web
-```
-
-Swagger API Docs จะอยู่ที่:
-
-```txt
-https://your-render-url.onrender.com/docs
-
----
-
-## ไฟล์ที่ควรมีใน ZIP ส่งงาน
-
-```txt
-repair-request-system/
-├── api/
-├── schemas/
-├── tests/
-├── docs/
-│   ├── user-guide.md
-│   ├── usecase-diagram.png
-│   └── system-architecture.png
-├── static/
-│   └── index.html
-├── auth_dependencies.py
-├── auth_utils.py
-├── database.py
-├── main.py
-├── models.py
-├── requirements.txt
-├── README.md
-├── seed.py
-├── start.bat
-├── run_tests.bat
-├── .gitignore
-└── repair_system.sqlite3
-```
-
----
-
-## สรุป
-
-ระบบนี้มีการ Login ด้วย JWT แยกสิทธิ์ Admin และ User โดย Admin สามารถจัดการหมวดหมู่อุปกรณ์ เปลี่ยนสถานะงานซ่อม และดู Dashboard สรุปข้อมูลระบบได้ ส่วน User สามารถสร้างรายการแจ้งซ่อมและดูรายการของตัวเองได้ ระบบมีหน้าเว็บสำหรับใช้งาน มี Swagger สำหรับทดสอบ API มี Database สำหรับจัดเก็บข้อมูล และมี Unit Test สำหรับตรวจสอบการทำงานของ API
+ระบบนี้รองรับการใช้งานแจ้งซ่อมครบขั้นพื้นฐาน มี Login แยกสิทธิ์ Admin/User มีหน้าเว็บใช้งานง่าย มี Category CRUD สำหรับ Admin มี Repair Request workflow และมี API Docs สำหรับทดสอบระบบ
