@@ -1,470 +1,338 @@
-\# วิธีเข้าใช้งานระบบ Repair Request Management System
+# วิธีเข้าใช้งานระบบ Repair Request Management System
 
+Repair Request Management System เป็นระบบแจ้งซ่อมอุปกรณ์ภายในองค์กร พัฒนาด้วย FastAPI มีระบบ Login ด้วย JWT และแยกสิทธิ์การใช้งานระหว่าง Admin กับ User
 
+---
 
-ระบบแจ้งซ่อมอุปกรณ์ภายในองค์กร พัฒนาด้วย FastAPI มีระบบ Login ด้วย JWT และแยกสิทธิ์การใช้งานระหว่าง Admin กับ User
+## URL สำหรับเข้าใช้งาน
 
+Local API:
 
+```txt
+http://localhost:8000
+```
 
-\---
+Swagger API Docs:
 
+```txt
+http://localhost:8000/docs
+```
 
+---
 
-\## URL
+## บัญชีสำหรับเข้าใช้งาน
 
-
-
-Local API: http://localhost:8000  
-
-Swagger API Docs: http://localhost:8000/docs
-
-
-
-\---
-
-
-
-\## Account สำหรับเข้าใช้งาน
-
-
-
-\### Admin Account
-
-
+### Admin Account
 
 Email: admin@test.com  
-
 Password: 1234
 
-
-
-\### User Account
-
-
+### User Account
 
 Email: user@test.com  
-
 Password: 1234
 
+---
 
-
-\---
-
-
-
-\## วิธีรันระบบแบบง่าย
-
-
+## วิธีรันระบบแบบง่าย
 
 สามารถดับเบิลคลิกไฟล์นี้ได้เลย:
 
+```txt
+start.bat
+```
 
+เมื่อเปิด `start.bat` ระบบจะทำงานให้อัตโนมัติ ดังนี้:
 
 ```txt
-
-start.bat
-
+1. สร้าง virtual environment ถ้ายังไม่มี
+2. ติดตั้ง dependencies จาก requirements.txt
+3. สร้างข้อมูลตัวอย่างด้วย seed.py
+4. เปิด Swagger API Docs อัตโนมัติ
+5. รัน FastAPI server
 ```
 
+หลังจากรันสำเร็จ ระบบจะเปิดหน้า Swagger ที่:
 
+```txt
+http://localhost:8000/docs
+```
 
-เมื่อเปิด `start.bat` ระบบจะติดตั้ง dependencies, สร้างข้อมูลตัวอย่าง และเปิด Swagger ให้อัตโนมัติ
+---
 
+## วิธีรันระบบด้วยคำสั่ง Manual
 
-
-\---
-
-
-
-\## วิธีรันระบบแบบ Manual
-
-
-
-เปิด Terminal ที่โฟลเดอร์ `repair-request-system` แล้วรันคำสั่ง:
-
-
+ถ้าต้องการรันเอง ให้เปิด Terminal ที่โฟลเดอร์ `repair-request-system` แล้วพิมพ์:
 
 ```bash
-
 python -m venv venv
-
-venv\\Scripts\\activate
-
+venv\Scripts\activate
 python -m pip install -r requirements.txt
-
 python seed.py
-
 python -m uvicorn main:app --reload
-
 ```
-
-
 
 จากนั้นเปิด:
 
-
-
 ```txt
-
 http://localhost:8000/docs
-
 ```
 
+---
 
+## วิธี Login และใช้งาน JWT Token
 
-\---
+1. เข้า Swagger API Docs:
 
+```txt
+http://localhost:8000/docs
+```
 
+2. ไปที่ API:
 
-\## วิธีใช้งานผ่าน Swagger
+```txt
+POST /api/v1/auth/login
+```
 
+3. กด `Try it out`
 
-
-1\. เข้า http://localhost:8000/docs
-
-2\. ไปที่ `POST /api/v1/auth/login`
-
-3\. กด `Try it out`
-
-4\. Login ด้วยข้อมูลนี้:
-
-
+4. ใส่ข้อมูล Login:
 
 ```json
-
 {
-
-&#x20; "email": "admin@test.com",
-
-&#x20; "password": "1234"
-
+  "email": "admin@test.com",
+  "password": "1234"
 }
-
 ```
 
+5. กด `Execute`
+6. Copy ค่า `access_token` จาก Response
+7. กดปุ่ม `Authorize` ด้านบนของ Swagger
+8. วาง token ลงในช่อง Authorization
+9. กด `Authorize` แล้วกด `Close`
 
+หลังจาก Authorize แล้ว จะสามารถเรียก API ที่ต้อง Login หรือ API สำหรับ Admin ได้
 
-5\. กด `Execute`
+---
 
-6\. Copy ค่า `access\_token`
+## API หลักของระบบ
 
-7\. กดปุ่ม `Authorize`
-
-8\. วาง token ลงไป
-
-9\. กด `Authorize` แล้วกด `Close`
-
-10\. ทดสอบ API เช่น Categories, Repair Requests และ Admin Dashboard
-
-
-
-\---
-
-
-
-\## API หลักของระบบ
-
-
-
-\### Auth
-
-
+### Auth
 
 ```txt
-
 POST /api/v1/auth/register
-
 POST /api/v1/auth/login
-
 GET  /api/v1/auth/me
-
 ```
 
-
-
-\### Categories
-
-
+### Categories
 
 ```txt
-
 GET    /api/v1/categories/
-
 POST   /api/v1/categories/
-
-GET    /api/v1/categories/{category\_id}
-
-PUT    /api/v1/categories/{category\_id}
-
-DELETE /api/v1/categories/{category\_id}
-
+GET    /api/v1/categories/{category_id}
+PUT    /api/v1/categories/{category_id}
+DELETE /api/v1/categories/{category_id}
 ```
-
-
 
 หมายเหตุ: การเพิ่ม แก้ไข และลบ Category ต้องใช้สิทธิ์ Admin
 
-
-
-\### Repair Requests
-
-
+### Repair Requests
 
 ```txt
-
 GET    /api/v1/repair-requests/
-
 POST   /api/v1/repair-requests/
-
-GET    /api/v1/repair-requests/{request\_id}
-
-PUT    /api/v1/repair-requests/{request\_id}
-
-DELETE /api/v1/repair-requests/{request\_id}
-
-PATCH  /api/v1/repair-requests/{request\_id}/status
-
+GET    /api/v1/repair-requests/{request_id}
+PUT    /api/v1/repair-requests/{request_id}
+DELETE /api/v1/repair-requests/{request_id}
+PATCH  /api/v1/repair-requests/{request_id}/status
 ```
-
-
 
 หมายเหตุ: User สามารถสร้างและดูรายการของตัวเองได้ ส่วน Admin สามารถดูทั้งหมดและเปลี่ยนสถานะงานซ่อมได้
 
-
-
-\### Admin
-
-
+### Admin
 
 ```txt
-
 GET /api/v1/admin/dashboard
-
 ```
-
-
 
 หมายเหตุ: API นี้ต้องใช้สิทธิ์ Admin
 
+---
 
+## ตัวอย่างการทดสอบระบบผ่าน Swagger
 
-\---
+### 1. ตรวจสอบข้อมูลผู้ใช้ปัจจุบัน
 
+ใช้ API:
 
-
-\## ตัวอย่างการใช้งาน
-
-
-
-\### สร้าง Category
-
-
-
-```json
-
-{
-
-&#x20; "name": "Network",
-
-&#x20; "description": "ระบบอินเทอร์เน็ตและเครือข่าย"
-
-}
-
+```txt
+GET /api/v1/auth/me
 ```
 
-
-
-\### สร้าง Repair Request
-
-
+ตัวอย่าง Response:
 
 ```json
-
 {
-
-&#x20; "title": "อินเทอร์เน็ตใช้งานไม่ได้",
-
-&#x20; "description": "คอมพิวเตอร์ในห้อง Lab ต่ออินเทอร์เน็ตไม่ได้",
-
-&#x20; "location": "Lab 302",
-
-&#x20; "priority": "high",
-
-&#x20; "category\_id": 1
-
+  "id": 1,
+  "username": "Admin",
+  "email": "admin@test.com",
+  "role": "admin"
 }
-
 ```
 
+---
 
+### 2. สร้างหมวดหมู่อุปกรณ์
 
-\### เปลี่ยนสถานะงานซ่อม
+ใช้ API:
 
+```txt
+POST /api/v1/categories/
+```
 
+Request Body:
 
 ```json
-
 {
-
-&#x20; "new\_status": "repairing",
-
-&#x20; "note": "เจ้าหน้าที่รับเรื่องและกำลังตรวจสอบ"
-
+  "name": "Network",
+  "description": "ระบบอินเทอร์เน็ตและเครือข่าย"
 }
-
 ```
 
+---
 
+### 3. สร้างรายการแจ้งซ่อม
+
+ใช้ API:
+
+```txt
+POST /api/v1/repair-requests/
+```
+
+Request Body:
+
+```json
+{
+  "title": "อินเทอร์เน็ตใช้งานไม่ได้",
+  "description": "คอมพิวเตอร์ในห้อง Lab ต่ออินเทอร์เน็ตไม่ได้",
+  "location": "Lab 302",
+  "priority": "high",
+  "category_id": 1
+}
+```
+
+เมื่อสร้างสำเร็จ ระบบจะกำหนดสถานะเริ่มต้นเป็น `pending` และกำหนด `user_id` จาก token ที่ Login อยู่โดยอัตโนมัติ
+
+---
+
+### 4. เปลี่ยนสถานะงานซ่อม
+
+ใช้ API:
+
+```txt
+PATCH /api/v1/repair-requests/{request_id}/status
+```
+
+ตัวอย่าง:
+
+```txt
+PATCH /api/v1/repair-requests/1/status
+```
+
+Request Body:
+
+```json
+{
+  "new_status": "repairing",
+  "note": "เจ้าหน้าที่รับเรื่องและกำลังตรวจสอบ"
+}
+```
 
 สถานะที่ใช้ได้:
 
-
-
 ```txt
-
 pending
-
 accepted
-
 repairing
-
 completed
-
 cancelled
-
 ```
 
+---
 
+### 5. ดู Admin Dashboard
 
-\---
+ใช้ API:
 
+```txt
+GET /api/v1/admin/dashboard
+```
 
+ตัวอย่าง Response:
 
-\## วิธีทดสอบ Unit Test
+```json
+{
+  "total_users": 2,
+  "total_categories": 3,
+  "total_requests": 1,
+  "pending_requests": 1,
+  "repairing_requests": 0,
+  "completed_requests": 0,
+  "cancelled_requests": 0
+}
+```
 
+---
 
+## วิธีรัน Unit Test
 
 สามารถดับเบิลคลิกไฟล์นี้ได้เลย:
 
-
-
 ```txt
-
-run\_tests.bat
-
+run_tests.bat
 ```
-
-
 
 หรือรันเองด้วยคำสั่ง:
 
-
-
 ```bash
-
 python -m pytest -v
-
 ```
 
-
-
-ผลลัพธ์ที่ควรได้:
-
-
+ถ้าสำเร็จจะเห็นผลลัพธ์ประมาณนี้:
 
 ```txt
-
 3 passed
-
 ```
 
 
-
-\---
-
-
-
-\## ไฟล์ที่ไม่ควรใส่ใน ZIP ส่งงาน
-
-
+## ไฟล์ทั้งหมด
 
 ```txt
-
-venv/
-
-\_\_pycache\_\_/
-
-.pytest\_cache/
-
-token.txt
-
-.env
-
-\*.log
-
-```
-
-
-
-\---
-
-
-
-\## ไฟล์ที่ควรมีใน ZIP ส่งงาน
-
-
-
-```txt
-
 repair-request-system/
-
 ├── api/
-
 ├── schemas/
-
 ├── tests/
-
 ├── docs/
-
 │   ├── user-guide.md
-
 │   ├── usecase-diagram.png
-
 │   └── system-architecture.png
-
-├── auth\_dependencies.py
-
-├── auth\_utils.py
-
+├── auth_dependencies.py
+├── auth_utils.py
 ├── database.py
-
 ├── main.py
-
 ├── models.py
-
 ├── requirements.txt
-
 ├── README.md
-
 ├── seed.py
-
 ├── start.bat
-
-├── run\_tests.bat
-
-└── repair\_system.sqlite3
-
+├── run_tests.bat
+├── .gitignore
+└── repair_system.sqlite3
 ```
 
+---
 
+## สรุป
 
-\---
-
-
-
-\## สรุป
-
-
-
-###### ระบบนี้มีการ Login ด้วย JWT แยกสิทธิ์ Admin และ User โดย Admin สามารถจัดการหมวดหมู่อุปกรณ์ เปลี่ยนสถานะงานซ่อม และดู Dashboard สรุปข้อมูลระบบได้ ส่วน User สามารถสร้างรายการแจ้งซ่อมและดูรายการของตัวเองได้
-
+ระบบนี้มีการ Login ด้วย JWT แยกสิทธิ์ Admin และ User โดย Admin สามารถจัดการหมวดหมู่อุปกรณ์ เปลี่ยนสถานะงานซ่อม และดู Dashboard สรุปข้อมูลระบบได้ ส่วน User สามารถสร้างรายการแจ้งซ่อมและดูรายการของตัวเองได้ ระบบมี Database สำหรับจัดเก็บข้อมูล และมี Unit Test สำหรับตรวจสอบการทำงานของ API
