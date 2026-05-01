@@ -8,7 +8,15 @@ client = TestClient(app)
 def test_home():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json()["message"] == "Repair Request API is running"
+    assert "text/html" in response.headers["content-type"]
+    assert "Repair Request Management System" in response.text
+
+
+def test_web():
+    response = client.get("/web")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "Repair Request Management System" in response.text
 
 
 def test_health_check():

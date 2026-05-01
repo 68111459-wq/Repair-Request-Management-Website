@@ -3,7 +3,6 @@ sqlalchemy
 jinja2
 PyJWT
 pytest
-python-dotenv
 passlib
 bcrypt
 uvicorn[standard]

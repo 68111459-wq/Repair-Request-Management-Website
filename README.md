@@ -156,7 +156,7 @@ pip install -r requirements.txt
 ### Start Command
 
 ```bash
-python seed.py && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+python seed.py && python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 หลัง Deploy เสร็จ ให้เข้า:
