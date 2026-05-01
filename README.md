@@ -281,24 +281,6 @@ repair-request-system/
 ├── .gitignore
 └── repair_system.sqlite3
 ```
-
----
-
-## Files Not Included in Submission
-
-ไฟล์หรือโฟลเดอร์ที่ไม่ควรใส่ใน ZIP ส่งงาน:
-
-```txt
-venv/
-.git/
-__pycache__/
-.pytest_cache/
-*.pyc
-token.txt
-.env
-*.log
-```
-
 ---
 
 ## Summary
