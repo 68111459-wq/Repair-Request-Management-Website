@@ -238,6 +238,21 @@
       white-space: nowrap;
     }
 
+    .category-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .category-actions button {
+      margin-top: 0;
+      padding: 8px 10px;
+      min-height: 34px;
+      font-size: 13px;
+      line-height: 1;
+    }
+
 
 
     /* Polished cards */
@@ -932,7 +947,7 @@
         </div>
 
         <div class="card admin-category-card">
-          <h2>Create Category</h2>
+          <h2 id="categoryFormTitle">Create Category</h2>
 
           <label>Category Name</label>
           <input id="categoryName" placeholder="เช่น Network" />
@@ -940,7 +955,8 @@
           <label>Description</label>
           <textarea id="categoryDescription" placeholder="รายละเอียดหมวดหมู่"></textarea>
 
-          <button class="secondary" onclick="createCategory()">Create Category</button>
+          <button id="categorySubmitButton" class="secondary" onclick="submitCategory()">Create Category</button>
+          <button id="categoryCancelButton" class="ghost" onclick="resetCategoryForm()" style="display: none;">Cancel</button>
           <div id="categoryMessage" class="message"></div>
         </div>
       </aside>
@@ -1012,6 +1028,7 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Description</th>
+                <th class="admin-only-column">Action</th>
               </tr>
             </thead>
             <tbody id="categoryTable"></tbody>
@@ -1044,6 +1061,7 @@
     let token = localStorage.getItem("token") || "";
     let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
     let categories = [];
+    let editingCategoryId = null;
 
     function showMessage(id, message, isError = false) {
       const box = document.getElementById(id);
@@ -1127,6 +1145,7 @@
       if (categoryTable) categoryTable.innerHTML = "";
       if (requestTable) requestTable.innerHTML = "";
       if (categorySelect) categorySelect.innerHTML = "";
+      resetCategoryForm();
     }
 
     function updateRoleUI() {
@@ -1139,6 +1158,7 @@
       const requestCreateCard = document.querySelector(".request-create-card");
       const categoriesCard = document.querySelector(".categories-card");
       const repairListCard = document.querySelector(".repair-list-card");
+      const adminOnlyColumns = document.querySelectorAll(".admin-only-column");
 
       if (guestNoticeCard) guestNoticeCard.style.display = isLoggedIn ? "none" : "block";
       if (dashboardCard) dashboardCard.style.display = isAdmin ? "block" : "none";
@@ -1146,6 +1166,9 @@
       if (requestCreateCard) requestCreateCard.style.display = isLoggedIn ? "block" : "none";
       if (categoriesCard) categoriesCard.style.display = isLoggedIn ? "block" : "none";
       if (repairListCard) repairListCard.style.display = isLoggedIn ? "block" : "none";
+      adminOnlyColumns.forEach(column => {
+        column.style.display = isAdmin ? "" : "none";
+      });
 
       if (!isAdmin) resetDashboard();
       if (!isLoggedIn) clearProtectedData();
@@ -1211,6 +1234,14 @@
             <td data-label="ID">${category.id}</td>
             <td data-label="Name">${category.name}</td>
             <td data-label="Description">${category.description || "-"}</td>
+            <td data-label="Action" class="admin-only-column">
+              ${isAdminUser() ? `
+                <div class="category-actions">
+                  <button onclick="startEditCategory(${category.id})">Edit</button>
+                  <button class="danger" onclick="deleteCategory(${category.id})">Delete</button>
+                </div>
+              ` : ""}
+            </td>
           </tr>
         `;
 
@@ -1218,9 +1249,43 @@
           <option value="${category.id}">${category.name}</option>
         `;
       });
+
+      updateRoleUI();
     }
 
-    async function createCategory() {
+    function resetCategoryForm() {
+      editingCategoryId = null;
+      const title = document.getElementById("categoryFormTitle");
+      const submitButton = document.getElementById("categorySubmitButton");
+      const cancelButton = document.getElementById("categoryCancelButton");
+      const nameInput = document.getElementById("categoryName");
+      const descriptionInput = document.getElementById("categoryDescription");
+
+      if (title) title.textContent = "Create Category";
+      if (submitButton) submitButton.textContent = "Create Category";
+      if (cancelButton) cancelButton.style.display = "none";
+      if (nameInput) nameInput.value = "";
+      if (descriptionInput) descriptionInput.value = "";
+    }
+
+    function startEditCategory(categoryId) {
+      const category = categories.find(item => item.id === categoryId);
+
+      if (!category) {
+        showMessage("categoryMessage", "Category not found", true);
+        return;
+      }
+
+      editingCategoryId = categoryId;
+      document.getElementById("categoryFormTitle").textContent = "Edit Category";
+      document.getElementById("categorySubmitButton").textContent = "Save Changes";
+      document.getElementById("categoryCancelButton").style.display = "inline-block";
+      document.getElementById("categoryName").value = category.name;
+      document.getElementById("categoryDescription").value = category.description || "";
+      document.getElementById("categoryName").focus();
+    }
+
+    async function submitCategory() {
       try {
         const name = document.getElementById("categoryName").value.trim();
         const description = document.getElementById("categoryDescription").value.trim();
@@ -1229,16 +1294,46 @@
           throw new Error("Please enter a category name");
         }
 
-        await api("/api/v1/categories/", {
-          method: "POST",
+        const path = editingCategoryId
+          ? `/api/v1/categories/${editingCategoryId}`
+          : "/api/v1/categories/";
+
+        await api(path, {
+          method: editingCategoryId ? "PUT" : "POST",
           body: JSON.stringify({ name, description })
         });
 
-        document.getElementById("categoryName").value = "";
-        document.getElementById("categoryDescription").value = "";
-
-        showMessage("categoryMessage", "สร้าง Category สำเร็จ");
+        showMessage(
+          "categoryMessage",
+          editingCategoryId ? "แก้ไข Category สำเร็จ" : "สร้าง Category สำเร็จ"
+        );
+        resetCategoryForm();
         await loadCategories();
+        await loadRepairRequests();
+        await loadDashboard();
+      } catch (error) {
+        showMessage("categoryMessage", error.message, true);
+      }
+    }
+
+    async function deleteCategory(categoryId) {
+      const category = categories.find(item => item.id === categoryId);
+      const categoryName = category ? category.name : `ID ${categoryId}`;
+
+      if (!confirm(`ต้องการลบ Category "${categoryName}" ใช่ไหม?`)) return;
+
+      try {
+        await api(`/api/v1/categories/${categoryId}`, {
+          method: "DELETE"
+        });
+
+        if (editingCategoryId === categoryId) {
+          resetCategoryForm();
+        }
+
+        showMessage("categoryMessage", "ลบ Category สำเร็จ");
+        await loadCategories();
+        await loadRepairRequests();
         await loadDashboard();
       } catch (error) {
         showMessage("categoryMessage", error.message, true);

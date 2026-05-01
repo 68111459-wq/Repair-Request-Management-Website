@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from auth_dependencies import require_admin
 from database import SessionLocal
-from models import EquipmentCategory
+from models import EquipmentCategory, RepairRequest
 from schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 
 router = APIRouter(
@@ -92,6 +92,10 @@ def delete_category(
 
         if not category:
             raise HTTPException(status_code=404, detail="Category not found")
+
+        db.query(RepairRequest).filter(
+            RepairRequest.category_id == category_id
+        ).update({"category_id": None})
 
         db.delete(category)
         db.commit()
