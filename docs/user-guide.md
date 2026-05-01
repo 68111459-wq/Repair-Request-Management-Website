@@ -379,7 +379,7 @@ python -m pytest -v
 
 ## วิธี Deploy บน Render
 
-ใช้ GitHub Repository ของโปรเจกต์นี้ แล้วสร้าง Web Service บน Render
+ใช้ GitHub Repository ของโปรเจกต์นี้ แล้วสร้าง Web Service
 
 ### Build Command
 
