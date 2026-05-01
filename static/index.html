@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repair Request Management System</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+
+    header {
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      color: white;
+      padding: 28px 40px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      opacity: 0.9;
+    }
+
+    .container {
+      width: min(1200px, 94%);
+      margin: 24px auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      display: block;
+      margin-top: 12px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    button {
+      border: none;
+      background: #2563eb;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .secondary {
+      background: #0f766e;
+    }
+
+    .secondary:hover {
+      background: #115e59;
+    }
+
+    .danger {
+      background: #dc2626;
+    }
+
+    .danger:hover {
+      background: #b91c1c;
+    }
+
+    .ghost {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .ghost:hover {
+      background: #d1d5db;
+    }
+
+    .message {
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #ecfdf5;
+      color: #047857;
+      margin-top: 12px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .error {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .stat strong {
+      font-size: 26px;
+      display: block;
+      color: #2563eb;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .pending { background: #fef3c7; color: #92400e; }
+    .accepted { background: #dbeafe; color: #1d4ed8; }
+    .repairing { background: #ede9fe; color: #6d28d9; }
+    .completed { background: #dcfce7; color: #166534; }
+    .cancelled { background: #fee2e2; color: #991b1b; }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .top-actions h2 {
+      margin: 0;
+    }
+
+    .top-actions button {
+      margin-top: 0;
+      padding: 8px 12px;
+      min-height: 36px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .action-cell {
+      width: 205px;
+      min-width: 205px;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(82px, 1fr));
+      gap: 8px;
+      align-items: center;
+    }
+
+    .action-buttons button {
+      width: 100%;
+      margin-top: 0;
+      padding: 8px 10px;
+      min-height: 34px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+
+
+    /* Polished cards */
+    .login-card {
+      text-align: center;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e5e7eb;
+    }
+
+    .login-card label {
+      text-align: left;
+    }
+
+    .login-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .login-actions button {
+      margin-top: 0;
+      min-width: 92px;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    .docs-link {
+      margin: 16px 0 0;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .docs-link a {
+      color: #2563eb;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .docs-link a:hover {
+      text-decoration: underline;
+    }
+
+    .current-user-card {
+      text-align: center;
+      background: #ffffff;
+      border: none;
+      overflow: visible;
+    }
+
+    .current-user-card::after {
+      display: none;
+    }
+
+    .current-user-card h2 {
+      color: #111827;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    #currentUser {
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0 auto;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .dashboard-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #eef6ff 48%, #ecfdf5 100%);
+      border: 1px solid #dbeafe;
+    }
+
+    .dashboard-card .top-actions {
+      margin-bottom: 16px;
+    }
+
+    .dashboard-card h2 {
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+
+    .dashboard-card .stats {
+      align-items: stretch;
+    }
+
+    .dashboard-card .stat {
+      min-height: 108px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(191, 219, 254, 0.95);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.06);
+    }
+
+    .dashboard-card .stat:nth-child(1) strong { color: #2563eb; }
+    .dashboard-card .stat:nth-child(2) strong { color: #0f766e; }
+    .dashboard-card .stat:nth-child(3) strong { color: #7c3aed; }
+    .dashboard-card .stat:nth-child(4) strong { color: #ea580c; }
+
+    .request-create-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 55%, #eff6ff 100%);
+      border: 1px solid #ccfbf1;
+    }
+
+    .request-create-card h2 {
+      color: #0f766e;
+    }
+
+    .request-create-card input,
+    .request-create-card textarea,
+    .request-create-card select {
+      background: rgba(255, 255, 255, 0.86);
+      border-color: #bfdbfe;
+    }
+
+    /* Soft tables */
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+
+    th {
+      text-align: left;
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    .category-table th {
+      text-align: left;
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .category-table tbody tr:nth-child(odd) {
+      background: #ffffff;
+    }
+
+    .category-table tbody tr:nth-child(even) {
+      background: #f0fdf4;
+    }
+
+    .request-table th {
+      text-align: center;
+      background: #eef2ff;
+      color: #3730a3;
+    }
+
+    .request-table tbody tr:nth-child(odd) {
+      background: #ffffff;
+    }
+
+    .request-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .center-cell {
+      text-align: center;
+      vertical-align: middle;
+      font-weight: 700;
+      color: #334155;
+    }
+
+
+    /* Final UI adjustments requested */
+    .current-user-card {
+      text-align: center;
+      background: #ffffff;
+      border: none;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .current-user-card h2 {
+      margin-bottom: 12px;
+      color: #0f172a;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    #currentUser {
+      max-width: 220px;
+      margin: 0 auto;
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    #currentUser strong {
+      display: inline-block;
+      margin-bottom: 2px;
+      color: #111827;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .dashboard-card {
+      background: #ffffff;
+      border: none;
+    }
+
+    .dashboard-card .stat {
+      min-height: 108px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    .request-create-card {
+      background: #ffffff;
+      border: none;
+    }
+
+    .request-create-card h2 {
+      color: #0f172a;
+    }
+
+    .request-create-card input,
+    .request-create-card textarea,
+    .request-create-card select {
+      background: #ffffff;
+      border-color: #d1d5db;
+    }
+
+    .categories-card h2 {
+      color: #c2410c;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .category-table th {
+      text-align: left;
+      background: #fff7ed;
+      color: #c2410c;
+      border-bottom: 1px solid #fed7aa;
+    }
+
+    .category-table tbody tr,
+    .category-table tbody tr:nth-child(odd),
+    .category-table tbody tr:nth-child(even) {
+      background: #ffffff;
+    }
+
+    .category-table tbody tr:hover {
+      background: #fffbeb;
+    }
+
+    /* Final requested tweaks: current user content left, Categories green */
+    #currentUser {
+      max-width: none;
+      margin: 0;
+      text-align: left;
+    }
+
+    #currentUser strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .categories-card h2 {
+      color: #047857;
+    }
+
+    .category-table th {
+      background: #ecfdf5;
+      color: #047857;
+      border-bottom: 1px solid #a7f3d0;
+    }
+
+    .category-table tbody tr:hover {
+      background: #f0fdf4;
+    }
+
+
+    .guest-notice-card {
+      text-align: center;
+      padding: 28px 20px;
+    }
+
+    .guest-notice-card h2 {
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    .guest-notice-card p {
+      margin: 0 auto;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    .view-only-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 78px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+
+    /* Final tiny cleanup: Current User spacing and black Categories title */
+    #currentUser {
+      text-align: left;
+      line-height: 1.35;
+      color: #334155;
+    }
+
+    #currentUser strong {
+      display: inline;
+      margin: 0;
+      color: #111827;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .categories-card h2 {
+      color: #111827;
+    }
+
+    .category-table th {
+      color: #111827;
+    }
+  
+
+    /* Responsive layout for Admin and User screens */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 14px;
+    }
+
+    .admin-category-card,
+    .request-create-card,
+    .categories-card,
+    .repair-list-card,
+    .dashboard-card,
+    .guest-notice-card {
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .container {
+        width: min(1000px, 94%);
+      }
+
+      .grid {
+        grid-template-columns: 300px 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .action-cell {
+        width: 190px;
+        min-width: 190px;
+      }
+
+      .action-buttons {
+        grid-template-columns: repeat(2, minmax(78px, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      header {
+        padding: 24px 22px;
+      }
+
+      header h1 {
+        font-size: 24px;
+        line-height: 1.25;
+      }
+
+      header p {
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .container {
+        width: min(760px, 94%);
+        margin: 18px auto;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      aside {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+
+      aside .card {
+        margin-bottom: 0;
+      }
+
+      .admin-category-card {
+        grid-column: 1 / -1;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stat {
+        min-height: 96px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 760px) {
+      header {
+        padding: 22px 18px;
+      }
+
+      header h1 {
+        font-size: 22px;
+      }
+
+      .container {
+        width: 94%;
+        margin: 16px auto;
+      }
+
+      aside {
+        display: block;
+      }
+
+      aside .card {
+        margin-bottom: 16px;
+      }
+
+      .login-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .login-actions button {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .top-actions {
+        align-items: stretch;
+      }
+
+      .top-actions button {
+        width: auto;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .dashboard-card .stat {
+        min-height: 88px;
+        padding: 14px;
+      }
+
+      .stat strong {
+        font-size: 23px;
+      }
+
+      input, textarea, select {
+        font-size: 16px;
+      }
+
+      .category-table,
+      .request-table {
+        display: block;
+        border: none;
+        background: transparent;
+        overflow: visible;
+        white-space: normal;
+      }
+
+      .category-table thead,
+      .request-table thead {
+        display: none;
+      }
+
+      .category-table tbody,
+      .request-table tbody {
+        display: grid;
+        gap: 12px;
+      }
+
+      .category-table tr,
+      .request-table tr {
+        display: block;
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+      }
+
+      .category-table td,
+      .request-table td {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        width: 100%;
+        padding: 11px 13px;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: right;
+        white-space: normal;
+        word-break: break-word;
+      }
+
+      .category-table td:last-child,
+      .request-table td:last-child {
+        border-bottom: none;
+      }
+
+      .category-table td::before,
+      .request-table td::before {
+        content: attr(data-label);
+        flex: 0 0 92px;
+        text-align: left;
+        color: #64748b;
+        font-weight: 800;
+      }
+
+      .request-table td[data-label="Title"] {
+        display: block;
+        text-align: left;
+      }
+
+      .request-table td[data-label="Title"]::before {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .center-cell {
+        justify-content: space-between;
+        text-align: right;
+      }
+
+      .action-cell {
+        width: 100%;
+        min-width: 0;
+        display: block !important;
+        text-align: left !important;
+      }
+
+      .action-cell::before {
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .action-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .action-buttons button {
+        min-height: 36px;
+        font-size: 12px;
+      }
+
+      .view-only-label {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 20px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .login-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .top-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .top-actions button {
+        width: 100%;
+      }
+
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .category-table td,
+      .request-table td {
+        flex-direction: column;
+        gap: 4px;
+        text-align: left;
+      }
+
+      .category-table td::before,
+      .request-table td::before {
+        flex: none;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Repair Request Management System</h1>
+    <p>ระบบแจ้งซ่อมอุปกรณ์ภายในองค์กร | FastAPI + JWT + SQLite</p>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <aside>
+        <div class="card login-card">
+          <h2>Login</h2>
+
+          <label>Email</label>
+          <input id="email" type="email" value="admin@test.com" />
+
+          <label>Password</label>
+          <input id="password" type="password" value="1234" />
+
+          <div class="login-actions">
+            <button onclick="login()">Login</button>
+            <button class="ghost" onclick="logout()">Logout</button>
+          </div>
+
+          <div id="loginMessage" class="message"></div>
+
+          <p class="docs-link">
+            <a href="/docs" target="_blank">Open Swagger Docs</a>
+          </p>
+        </div>
+
+        <div class="card current-user-card">
+          <h2>Current User</h2>
+          <p id="currentUser">ยังไม่ได้ Login</p>
+        </div>
+
+        <div class="card admin-category-card">
+          <h2>Create Category</h2>
+
+          <label>Category Name</label>
+          <input id="categoryName" placeholder="เช่น Network" />
+
+          <label>Description</label>
+          <textarea id="categoryDescription" placeholder="รายละเอียดหมวดหมู่"></textarea>
+
+          <button class="secondary" onclick="createCategory()">Create Category</button>
+          <div id="categoryMessage" class="message"></div>
+        </div>
+      </aside>
+
+      <main>
+        <div class="card guest-notice-card">
+          <h2>กรุณา Login เพื่อใช้งานระบบ</h2>
+          <p class="small">หลังจาก Login แล้วจะสามารถสร้างรายการแจ้งซ่อม ดูรายการแจ้งซ่อม และใช้งานตามสิทธิ์ของบัญชีได้</p>
+        </div>
+        <div class="card dashboard-card">
+          <div class="top-actions">
+            <h2>Admin Dashboard</h2>
+            <button class="ghost" onclick="loadAll()">Refresh Data</button>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong id="totalUsers">-</strong>
+              Users
+            </div>
+            <div class="stat">
+              <strong id="totalCategories">-</strong>
+              Categories
+            </div>
+            <div class="stat">
+              <strong id="totalRequests">-</strong>
+              Requests
+            </div>
+            <div class="stat">
+              <strong id="repairingRequests">-</strong>
+              Repairing
+            </div>
+          </div>
+
+          <p id="dashboardNote" class="small"></p>
+        </div>
+
+        <div class="card request-create-card">
+          <h2>Create Repair Request</h2>
+
+          <label>Title</label>
+          <input id="requestTitle" value="เครื่องพิมพ์ใช้งานไม่ได้" />
+
+          <label>Description</label>
+          <textarea id="requestDescription">เครื่องพิมพ์ไม่ดึงกระดาษ</textarea>
+
+          <label>Location</label>
+          <input id="requestLocation" value="Office 201" />
+
+          <label>Priority</label>
+          <select id="requestPriority">
+            <option value="low">low</option>
+            <option value="medium" selected>medium</option>
+            <option value="high">high</option>
+          </select>
+
+          <label>Category</label>
+          <select id="requestCategory"></select>
+
+          <button onclick="createRepairRequest()">Create Repair Request</button>
+          <div id="requestMessage" class="message"></div>
+        </div>
+
+        <div class="card categories-card">
+          <h2>Categories</h2>
+          <table class="category-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody id="categoryTable"></tbody>
+          </table>
+        </div>
+
+        <div class="card repair-list-card">
+          <h2>Repair Requests</h2>
+          <table class="request-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>User</th>
+                <th>Category</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="requestTable"></tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    let token = localStorage.getItem("token") || "";
+    let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    let categories = [];
+
+    function showMessage(id, message, isError = false) {
+      const box = document.getElementById(id);
+      box.textContent = message;
+      box.style.display = "block";
+      box.className = isError ? "message error" : "message";
+    }
+
+    async function api(path, options = {}) {
+      const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(path, {
+        ...options,
+        headers
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const detail = data && data.detail ? data.detail : "Request failed";
+        throw new Error(detail);
+      }
+
+      return data;
+    }
+
+    async function login() {
+      try {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const data = await api("/api/v1/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ email, password })
+        });
+
+        token = data.access_token;
+        localStorage.setItem("token", token);
+
+        await loadMe();
+        await loadAll();
+
+        showMessage("loginMessage", "Login สำเร็จ");
+      } catch (error) {
+        showMessage("loginMessage", error.message, true);
+      }
+    }
+
+    function resetDashboard() {
+      document.getElementById("totalUsers").textContent = "-";
+      document.getElementById("totalCategories").textContent = "-";
+      document.getElementById("totalRequests").textContent = "-";
+      document.getElementById("repairingRequests").textContent = "-";
+      document.getElementById("dashboardNote").textContent = "";
+    }
+
+    function isAdminUser() {
+      return currentUser && currentUser.role === "admin";
+    }
+
+    function clearProtectedData() {
+      const categoryTable = document.getElementById("categoryTable");
+      const requestTable = document.getElementById("requestTable");
+      const categorySelect = document.getElementById("requestCategory");
+
+      if (categoryTable) categoryTable.innerHTML = "";
+      if (requestTable) requestTable.innerHTML = "";
+      if (categorySelect) categorySelect.innerHTML = "";
+    }
+
+    function updateRoleUI() {
+      const isLoggedIn = Boolean(token && currentUser);
+      const isAdmin = isAdminUser();
+
+      const guestNoticeCard = document.querySelector(".guest-notice-card");
+      const dashboardCard = document.querySelector(".dashboard-card");
+      const categoryCreateCard = document.querySelector(".admin-category-card");
+      const requestCreateCard = document.querySelector(".request-create-card");
+      const categoriesCard = document.querySelector(".categories-card");
+      const repairListCard = document.querySelector(".repair-list-card");
+
+      if (guestNoticeCard) guestNoticeCard.style.display = isLoggedIn ? "none" : "block";
+      if (dashboardCard) dashboardCard.style.display = isAdmin ? "block" : "none";
+      if (categoryCreateCard) categoryCreateCard.style.display = isAdmin ? "block" : "none";
+      if (requestCreateCard) requestCreateCard.style.display = isLoggedIn ? "block" : "none";
+      if (categoriesCard) categoriesCard.style.display = isLoggedIn ? "block" : "none";
+      if (repairListCard) repairListCard.style.display = isLoggedIn ? "block" : "none";
+
+      if (!isAdmin) resetDashboard();
+      if (!isLoggedIn) clearProtectedData();
+    }
+    function logout() {
+      token = "";
+      currentUser = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("currentUser");
+      document.getElementById("currentUser").textContent = "ยังไม่ได้ Login";
+      clearProtectedData();
+      updateRoleUI();
+      showMessage("loginMessage", "Logout แล้ว");
+    }
+    async function loadMe() {
+      if (!token) return;
+
+      currentUser = await api("/api/v1/auth/me");
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+      document.getElementById("currentUser").innerHTML = `
+        <strong>${currentUser.username}</strong><br>
+        Email: ${currentUser.email}<br>
+        Role: ${currentUser.role}
+      `;
+
+      updateRoleUI();
+    }
+
+    async function loadDashboard() {
+      try {
+        if (!isAdminUser()) {
+          updateRoleUI();
+          return;
+        }
+
+        const data = await api("/api/v1/admin/dashboard");
+
+        document.getElementById("totalUsers").textContent = data.total_users;
+        document.getElementById("totalCategories").textContent = data.total_categories;
+        document.getElementById("totalRequests").textContent = data.total_requests;
+        document.getElementById("repairingRequests").textContent = data.repairing_requests;
+
+        document.getElementById("dashboardNote").textContent =
+          `Pending: ${data.pending_requests}, Completed: ${data.completed_requests}, Cancelled: ${data.cancelled_requests}`;
+      } catch (error) {
+        document.getElementById("dashboardNote").textContent = error.message;
+      }
+    }
+
+    async function loadCategories() {
+      categories = await api("/api/v1/categories/");
+
+      const tbody = document.getElementById("categoryTable");
+      const select = document.getElementById("requestCategory");
+
+      tbody.innerHTML = "";
+      select.innerHTML = "";
+
+      categories.forEach(category => {
+        tbody.innerHTML += `
+          <tr>
+            <td data-label="ID">${category.id}</td>
+            <td data-label="Name">${category.name}</td>
+            <td data-label="Description">${category.description || "-"}</td>
+          </tr>
+        `;
+
+        select.innerHTML += `
+          <option value="${category.id}">${category.name}</option>
+        `;
+      });
+    }
+
+    async function createCategory() {
+      try {
+        const name = document.getElementById("categoryName").value;
+        const description = document.getElementById("categoryDescription").value;
+
+        await api("/api/v1/categories/", {
+          method: "POST",
+          body: JSON.stringify({ name, description })
+        });
+
+        document.getElementById("categoryName").value = "";
+        document.getElementById("categoryDescription").value = "";
+
+        showMessage("categoryMessage", "สร้าง Category สำเร็จ");
+        await loadCategories();
+        await loadDashboard();
+      } catch (error) {
+        showMessage("categoryMessage", error.message, true);
+      }
+    }
+
+    async function loadRepairRequests() {
+      const tbody = document.getElementById("requestTable");
+
+      if (!token || !currentUser) {
+        tbody.innerHTML = "";
+        updateRoleUI();
+        return;
+      }
+
+      const requests = await api("/api/v1/repair-requests/");
+
+      tbody.innerHTML = "";
+
+      requests.forEach(item => {
+        tbody.innerHTML += `
+          <tr>
+            <td data-label="ID">${item.id}</td>
+            <td data-label="Title">
+              <strong>${item.title}</strong><br>
+              <span class="small">${item.description}</span>
+            </td>
+            <td data-label="Location">${item.location}</td>
+            <td data-label="Priority">${item.priority}</td>
+            <td data-label="Status">
+              <span class="badge ${item.status}">${item.status}</span>
+            </td>
+            <td data-label="User" class="center-cell">${item.user_id || "-"}</td>
+            <td data-label="Category" class="center-cell">${item.category_id || "-"}</td>
+            <td data-label="Action" class="action-cell">
+              ${isAdminUser() ? `
+                <div class="action-buttons">
+                  <button onclick="changeStatus(${item.id}, 'accepted')">Accept</button>
+                  <button onclick="changeStatus(${item.id}, 'repairing')">Repairing</button>
+                  <button class="secondary" onclick="changeStatus(${item.id}, 'completed')">Complete</button>
+                  <button class="danger" onclick="deleteRequest(${item.id})">Delete</button>
+                </div>
+              ` : `<span class="view-only-label">View only</span>`}
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    async function createRepairRequest() {
+      try {
+        if (!currentUser) {
+          throw new Error("กรุณา Login ก่อน");
+        }
+
+        const body = {
+          title: document.getElementById("requestTitle").value,
+          description: document.getElementById("requestDescription").value,
+          location: document.getElementById("requestLocation").value,
+          priority: document.getElementById("requestPriority").value,
+          category_id: Number(document.getElementById("requestCategory").value),
+          user_id: currentUser.id
+        };
+
+        await api("/api/v1/repair-requests/", {
+          method: "POST",
+          body: JSON.stringify(body)
+        });
+
+        showMessage("requestMessage", "สร้างรายการแจ้งซ่อมสำเร็จ");
+        await loadRepairRequests();
+        await loadDashboard();
+      } catch (error) {
+        showMessage("requestMessage", error.message, true);
+      }
+    }
+
+    async function changeStatus(id, status) {
+      try {
+        if (!currentUser) {
+          throw new Error("กรุณา Login ก่อน");
+        }
+
+        await api(`/api/v1/repair-requests/${id}/status`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            new_status: status,
+            note: `เปลี่ยนสถานะผ่านหน้าเว็บเป็น ${status}`,
+            changed_by: currentUser.id
+          })
+        });
+
+        await loadRepairRequests();
+        await loadDashboard();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function deleteRequest(id) {
+      if (!confirm("ต้องการลบรายการนี้ใช่ไหม?")) return;
+
+      try {
+        await api(`/api/v1/repair-requests/${id}`, {
+          method: "DELETE"
+        });
+
+        await loadRepairRequests();
+        await loadDashboard();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function loadAll() {
+      try {
+        if (!token) {
+          currentUser = null;
+          localStorage.removeItem("currentUser");
+          document.getElementById("currentUser").textContent = "ยังไม่ได้ Login";
+          clearProtectedData();
+          updateRoleUI();
+          return;
+        }
+
+        await loadMe();
+        await loadCategories();
+        await loadRepairRequests();
+        await loadDashboard();
+        updateRoleUI();
+      } catch (error) {
+        console.error(error);
+        token = "";
+        currentUser = null;
+        localStorage.removeItem("token");
+        localStorage.removeItem("currentUser");
+        document.getElementById("currentUser").textContent = "Session หมดอายุ กรุณา Login ใหม่";
+        clearProtectedData();
+        updateRoleUI();
+      }
+    }
+    updateRoleUI();
+    loadAll();
+  </script>
+</body>
+</html>

@@ -1,24 +1,30 @@
 # Repair Request Management System
 
-ระบบแจ้งซ่อมอุปกรณ์ภายในองค์กร พัฒนาด้วย FastAPI โดยมีระบบ Authentication ด้วย JWT และมี Admin สำหรับจัดการข้อมูล
+ระบบแจ้งซ่อมอุปกรณ์ภายในองค์กร พัฒนาด้วย FastAPI มีระบบ Login ด้วย JWT แยกสิทธิ์ Admin / User และมีหน้าเว็บสำหรับใช้งานระบบ
 
 ---
 
 ## Features
 
-- Login ด้วย JWT
-- แยกสิทธิ์ Admin / User
+- Login / Logout ด้วย JWT
+- แยกสิทธิ์ Admin และ User
+- หน้า Web Application สำหรับใช้งานระบบ
+- Swagger API Docs สำหรับทดสอบ API
 - Admin Dashboard
 - จัดการหมวดหมู่อุปกรณ์
 - สร้างรายการแจ้งซ่อม
 - ดูรายการแจ้งซ่อม
 - เปลี่ยนสถานะงานซ่อม
+- ลบรายการแจ้งซ่อม
 - Unit Testing ด้วย Pytest
+- มี `start.bat` สำหรับรันระบบอัตโนมัติ
+- มี `run_tests.bat` สำหรับรัน Unit Test อัตโนมัติ
 
 ---
 
 ## Tech Stack
 
+- Python
 - FastAPI
 - SQLAlchemy
 - SQLite
@@ -26,45 +32,36 @@
 - PyJWT
 - Passlib
 - Pytest
-
----
-
-## Quick Start for Instructor
-
-สำหรับการตรวจงาน สามารถรันระบบได้โดยไม่ต้องพิมพ์คำสั่งเอง
-
-### Run Application
-
-ดับเบิลคลิกไฟล์:
-
-```txt
-start.bat
-```
-
-ระบบจะติดตั้ง dependencies, สร้างข้อมูลตัวอย่าง และเปิด Swagger API Docs ให้อัตโนมัติ
-
-### Run Unit Tests
-
-ดับเบิลคลิกไฟล์:
-
-```txt
-run_tests.bat
-```
+- HTML / CSS / JavaScript
 
 ---
 
 ## URL
 
-Local API:
+### Local Web Application
+
+```txt
+http://localhost:8000/web
+```
+
+### Swagger API Docs
+
+```txt
+http://localhost:8000/docs
+```
+
+### Local API
 
 ```txt
 http://localhost:8000
 ```
 
-Swagger API Docs:
+### Production
+
+หลังจาก Deploy แล้ว ให้ใช้ URL ที่ได้จาก Render เช่น:
 
 ```txt
-http://localhost:8000/docs
+https://your-render-url.onrender.com/web
 ```
 
 ---
@@ -83,6 +80,43 @@ Password: 1234
 
 ---
 
+## Quick Start for Instructor
+
+สำหรับการตรวจงาน สามารถรันระบบได้โดยไม่ต้องพิมพ์คำสั่งเอง
+
+### Run Application
+
+ดับเบิลคลิกไฟล์:
+
+```txt
+start.bat
+```
+
+ระบบจะทำงานให้อัตโนมัติ ดังนี้:
+
+```txt
+1. สร้าง virtual environment ถ้ายังไม่มี
+2. Activate virtual environment
+3. ติดตั้ง dependencies จาก requirements.txt
+4. สร้างข้อมูลตัวอย่างด้วย seed.py
+5. เปิดหน้า Web Application อัตโนมัติ
+6. รัน FastAPI server
+```
+
+หลังจากรันสำเร็จ ระบบจะเปิดที่:
+
+```txt
+http://localhost:8000/web
+```
+
+ถ้าต้องการทดสอบ API โดยตรง สามารถเปิด Swagger ได้ที่:
+
+```txt
+http://localhost:8000/docs
+```
+
+---
+
 ## How to Run Manually
 
 เปิด Terminal ที่โฟลเดอร์ `repair-request-system` แล้วรันคำสั่ง:
@@ -95,7 +129,13 @@ python seed.py
 python -m uvicorn main:app --reload
 ```
 
-จากนั้นเปิด:
+จากนั้นเปิดหน้าเว็บ:
+
+```txt
+http://localhost:8000/web
+```
+
+หรือเปิด Swagger API Docs:
 
 ```txt
 http://localhost:8000/docs
@@ -103,11 +143,109 @@ http://localhost:8000/docs
 
 ---
 
-## How to Login and Use JWT Token
+## How to Deploy on Render
+
+ตั้งค่า Render Web Service ดังนี้:
+
+### Build Command
+
+```bash
+pip install -r requirements.txt
+```
+
+### Start Command
+
+```bash
+python seed.py && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+หลัง Deploy เสร็จ ให้เข้า:
+
+```txt
+https://your-render-url.onrender.com/web
+```
+
+---
+
+## Web Frontend
+
+ระบบมีหน้าเว็บสำหรับใช้งานที่ `/web`
+
+### ความสามารถของหน้าเว็บ
+
+- Login / Logout
+- แสดงข้อมูล Current User
+- Admin ดู Dashboard ได้
+- Admin จัดการ Category ได้
+- Admin ดูรายการแจ้งซ่อมทั้งหมดได้
+- Admin เปลี่ยนสถานะงานซ่อมได้
+- Admin ลบรายการแจ้งซ่อมได้
+- User สร้างรายการแจ้งซ่อมได้
+- User ดูรายการแจ้งซ่อมของตัวเองได้
+- เมื่อ Logout แล้ว ระบบจะซ่อนข้อมูลที่ต้อง Login
+
+---
+
+## Role Permission
+
+### Guest
+
+ผู้ใช้ที่ยังไม่ได้ Login
+
+```txt
+- เห็นหน้า Login
+- ไม่เห็น Dashboard
+- ไม่เห็น Categories
+- ไม่เห็น Repair Requests
+- ไม่สามารถสร้างรายการแจ้งซ่อมได้
+```
+
+### User
+
+ผู้ใช้ทั่วไป
+
+```txt
+- Login ได้
+- ดูข้อมูลตัวเองได้
+- สร้างรายการแจ้งซ่อมได้
+- ดูรายการแจ้งซ่อมของตัวเองได้
+- ไม่เห็น Admin Dashboard
+- ไม่สามารถจัดการ Category ได้
+- ไม่สามารถเปลี่ยนสถานะงานซ่อมได้
+```
+
+### Admin
+
+ผู้ดูแลระบบ
+
+```txt
+- Login ได้
+- ดูข้อมูลตัวเองได้
+- ดู Admin Dashboard ได้
+- จัดการ Category ได้
+- ดูรายการแจ้งซ่อมทั้งหมดได้
+- เปลี่ยนสถานะงานซ่อมได้
+- ลบรายการแจ้งซ่อมได้
+```
+
+---
+
+## How to Login and Use JWT Token in Swagger
 
 1. เข้า Swagger API Docs
-2. ไปที่ `POST /api/v1/auth/login`
+
+```txt
+http://localhost:8000/docs
+```
+
+2. ไปที่ API
+
+```txt
+POST /api/v1/auth/login
+```
+
 3. กด `Try it out`
+
 4. ใส่ข้อมูล Login
 
 ```json
@@ -120,10 +258,15 @@ http://localhost:8000/docs
 5. กด `Execute`
 6. Copy ค่า `access_token`
 7. กดปุ่ม `Authorize`
-8. วาง token ลงในช่อง Authorization
+8. วาง Token ในรูปแบบนี้:
+
+```txt
+Bearer your_access_token
+```
+
 9. กด `Authorize` แล้วกด `Close`
 
-หลังจาก Authorize แล้ว สามารถเรียก API ที่ต้อง Login หรือ API ที่ต้องใช้สิทธิ์ Admin ได้
+หลังจาก Authorize แล้ว จะสามารถเรียก API ที่ต้อง Login หรือ API ที่ต้องใช้สิทธิ์ Admin ได้
 
 ---
 
@@ -131,42 +274,50 @@ http://localhost:8000/docs
 
 ### User
 
-- id
-- username
-- email
-- hashed_password
-- role
-- created_at
+```txt
+id
+username
+email
+hashed_password
+role
+created_at
+```
 
 ### EquipmentCategory
 
-- id
-- name
-- description
+```txt
+id
+name
+description
+```
 
 ### RepairRequest
 
-- id
-- title
-- description
-- location
-- priority
-- status
-- user_id
-- category_id
-- created_at
-- updated_at
-- completed_at
+```txt
+id
+title
+description
+location
+priority
+status
+user_id
+category_id
+created_at
+updated_at
+completed_at
+```
 
 ### RepairStatusLog
 
-- id
-- repair_request_id
-- changed_by
-- old_status
-- new_status
-- note
-- created_at
+```txt
+id
+repair_request_id
+changed_by
+old_status
+new_status
+note
+created_at
+```
 
 ---
 
@@ -241,9 +392,29 @@ GET /api/v1/admin/dashboard
 }
 ```
 
+สถานะที่ใช้ได้:
+
+```txt
+pending
+accepted
+repairing
+completed
+cancelled
+```
+
 ---
 
 ## Run Unit Test
+
+### Run with file
+
+ดับเบิลคลิกไฟล์:
+
+```txt
+run_tests.bat
+```
+
+### Run with command
 
 ```bash
 python -m pytest -v
@@ -268,6 +439,8 @@ repair-request-system/
 │   ├── user-guide.md
 │   ├── usecase-diagram.png
 │   └── system-architecture.png
+├── static/
+│   └── index.html
 ├── auth_dependencies.py
 ├── auth_utils.py
 ├── database.py
@@ -281,8 +454,23 @@ repair-request-system/
 ├── .gitignore
 └── repair_system.sqlite3
 ```
+
+---
+
+
+
+## Git Repository
+
+Source code is managed using Git.
+
+GitHub Repository:
+
+```txt
+https://github.com/wachirawichsuchaiyasit/repair-request-system
+```
+
 ---
 
 ## Summary
 
-ระบบ Repair Request Management System มีการยืนยันตัวตนด้วย JWT แยกสิทธิ์ Admin และ User โดย Admin สามารถจัดการหมวดหมู่อุปกรณ์ เปลี่ยนสถานะงานซ่อม และดู Dashboard สรุปข้อมูลระบบได้ ส่วน User สามารถสร้างรายการแจ้งซ่อมและดูรายการของตัวเองได้ ระบบใช้ SQLite เป็นฐานข้อมูล และมี Unit Test สำหรับตรวจสอบการทำงานของ API
+Repair Request Management System เป็นระบบแจ้งซ่อมอุปกรณ์ภายในองค์กร มีระบบยืนยันตัวตนด้วย JWT แยกสิทธิ์ Admin และ User โดย Admin สามารถจัดการหมวดหมู่ ดู Dashboard เปลี่ยนสถานะงานซ่อม และลบรายการแจ้งซ่อมได้ ส่วน User สามารถสร้างรายการแจ้งซ่อมและดูรายการของตัวเองได้ ระบบมีหน้าเว็บสำหรับใช้งานจริง มี Swagger สำหรับทดสอบ API และมี Unit Test สำหรับตรวจสอบการทำงานของระบบ

@@ -5,3 +5,5 @@ PyJWT
 pytest
 python-dotenv
 passlib
+bcrypt
+uvicorn[standard]
