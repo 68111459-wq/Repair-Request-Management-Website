@@ -1071,6 +1071,14 @@
 
       if (!response.ok) {
         const detail = data && data.detail ? data.detail : "Request failed";
+        if (response.status === 401 || response.status === 403) {
+          token = "";
+          currentUser = null;
+          localStorage.removeItem("token");
+          localStorage.removeItem("currentUser");
+          clearProtectedData();
+          updateRoleUI();
+        }
         throw new Error(detail);
       }
 
@@ -1214,8 +1222,12 @@
 
     async function createCategory() {
       try {
-        const name = document.getElementById("categoryName").value;
-        const description = document.getElementById("categoryDescription").value;
+        const name = document.getElementById("categoryName").value.trim();
+        const description = document.getElementById("categoryDescription").value.trim();
+
+        if (!name) {
+          throw new Error("Please enter a category name");
+        }
 
         await api("/api/v1/categories/", {
           method: "POST",
